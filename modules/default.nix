@@ -104,8 +104,8 @@ in {
       };
       target = lib.mkOption {
         type = lib.types.str;
-        default = "$HOME/.config/hypr/wallpapers/current";
-        description = "Path the current wallpaper is linked to.";
+        default = "~/.config/hypr/wallpapers/current";
+        description = "Path the current wallpaper is linked to; ~ is expanded at runtime.";
       };
     };
   };

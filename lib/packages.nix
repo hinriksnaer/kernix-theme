@@ -1,8 +1,8 @@
 # Core kernix-theme CLI tools.
 #
 # These are always installed by the Home Manager module. App-specific tools
-# (neovim/yazi/herdr adapters, rofi pickers) are provided by each app's
-# `provide` function instead.
+# (neovim/yazi/herdr adapters) are provided by each app's `provide` function
+# instead. Launcher/UI orchestration lives with consumers.
 #
 # `wallpaper` controls the optional wallpaper commands and bakes the chosen
 # backend/target into the wrappers.
@@ -12,7 +12,7 @@
   wallpaper ? {
     enable = false;
     backend = "swaybg";
-    target = "$HOME/.config/hypr/wallpapers/current";
+    target = "~/.config/hypr/wallpapers/current";
   },
 }: let
   themeLib = import ./theme.nix {
@@ -23,7 +23,7 @@
   lib = pkgs.lib;
 
   kwpBackend = wallpaper.backend or "swaybg";
-  kwpTarget = wallpaper.target or "$HOME/.config/hypr/wallpapers/current";
+  kwpTarget = wallpaper.target or "~/.config/hypr/wallpapers/current";
 
   wallpaperEnv = {
     KERNIX_WALLPAPER_BACKEND = kwpBackend;
@@ -65,24 +65,24 @@ in
       name = "kernix-wallpaper-set";
       runtimeInputs = with pkgs; [swaybg coreutils findutils procps];
       env = wallpaperEnv;
-      excludeShellChecks = ["SC2016"];
+      excludeShellChecks = ["SC2016" "SC2088"];
     })
     (mkScript {
       name = "kernix-wallpaper-next";
       runtimeInputs = with pkgs; [swaybg coreutils findutils procps libnotify];
       env = wallpaperEnv;
-      excludeShellChecks = ["SC2016"];
+      excludeShellChecks = ["SC2016" "SC2088"];
     })
     (mkScript {
       name = "kernix-wallpaper-list";
       runtimeInputs = with pkgs; [coreutils findutils gnugrep];
       env = wallpaperEnv;
-      excludeShellChecks = ["SC2016"];
+      excludeShellChecks = ["SC2016" "SC2088"];
     })
     (mkScript {
       name = "kernix-wallpaper-set-file";
       runtimeInputs = with pkgs; [swaybg coreutils procps];
       env = wallpaperEnv;
-      excludeShellChecks = ["SC2016"];
+      excludeShellChecks = ["SC2016" "SC2088"];
     })
   ]
