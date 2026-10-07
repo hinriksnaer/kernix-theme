@@ -101,7 +101,10 @@ in {
       };
 
     # ── Engine + adapters + pickers ──
-    home.packages = import ../lib/packages.nix {inherit pkgs kernixPath;};
+    home.packages = import ../lib/packages.nix {
+      inherit pkgs kernixPath;
+      hooks = cfg.hooks;
+    };
 
     home.sessionVariables.KERNIX_PATH = kernixPath;
 
