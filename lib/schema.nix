@@ -137,11 +137,14 @@
 
   actionLine = app: action:
     if action.type == "link"
-    then ''kernix_link "$theme_dir/${action.source}" ${lib.escapeShellArg action.target}''
+    then ''      kernix_link "$theme_dir/${action.source}" ${lib.escapeShellArg action.target}
+    ''
     else if action.type == "copy"
-    then ''kernix_copy "$theme_dir/${action.source}" ${lib.escapeShellArg action.target}''
+    then ''      kernix_copy "$theme_dir/${action.source}" ${lib.escapeShellArg action.target}
+    ''
     else if action.type == "run"
-    then ''kernix_run ${lib.escapeShellArg action.command} "$theme" "$theme_dir" "$value"''
+    then ''      kernix_run ${lib.escapeShellArg action.command} "$theme" "$theme_dir" "$value"
+    ''
     else if action.type == "render"
     then let
       cases = lib.concatMapStrings (theme: let
