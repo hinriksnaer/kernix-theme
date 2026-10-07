@@ -22,9 +22,12 @@
   inherit (themeLib) mkScript;
   lib = pkgs.lib;
 
+  kwpBackend = wallpaper.backend or "swaybg";
+  kwpTarget = wallpaper.target or "$HOME/.config/hypr/wallpapers/current";
+
   wallpaperEnv = {
-    KERNIX_WALLPAPER_BACKEND = wallpaper.backend;
-    KERNIX_WALLPAPER_TARGET = wallpaper.target;
+    KERNIX_WALLPAPER_BACKEND = kwpBackend;
+    KERNIX_WALLPAPER_TARGET = kwpTarget;
   };
 in
   [
@@ -33,34 +36,53 @@ in
       runtimeInputs = with pkgs; [coreutils gnused findutils];
       excludeShellChecks = ["SC2129"];
     })
-    (mkScript {name = "kernix-theme-set"; runtimeInputs = with pkgs; [coreutils gnused libnotify];})
-    (mkScript {name = "kernix-theme-current"; runtimeInputs = with pkgs; [coreutils];})
-    (mkScript {name = "kernix-theme-list"; runtimeInputs = with pkgs; [coreutils];})
-    (mkScript {name = "kernix-theme-path"; runtimeInputs = with pkgs; [coreutils];})
+    (mkScript {
+      name = "kernix-theme-set";
+      runtimeInputs = with pkgs; [coreutils gnused libnotify];
+    })
+    (mkScript {
+      name = "kernix-theme-current";
+      runtimeInputs = with pkgs; [coreutils];
+    })
+    (mkScript {
+      name = "kernix-theme-list";
+      runtimeInputs = with pkgs; [coreutils];
+    })
+    (mkScript {
+      name = "kernix-theme-path";
+      runtimeInputs = with pkgs; [coreutils];
+    })
     (mkScript {name = "kernix-theme-next";})
     (mkScript {name = "kernix-theme-prev";})
     (mkScript {name = "kernix-theme-refresh";})
-    (mkScript {name = "kernix-theme"; runtimeInputs = with pkgs; [coreutils gnused fzf];})
+    (mkScript {
+      name = "kernix-theme";
+      runtimeInputs = with pkgs; [coreutils gnused fzf];
+    })
   ]
   ++ lib.optionals wallpaper.enable [
     (mkScript {
       name = "kernix-wallpaper-set";
       runtimeInputs = with pkgs; [swaybg coreutils findutils procps];
       env = wallpaperEnv;
+      excludeShellChecks = ["SC2016"];
     })
     (mkScript {
       name = "kernix-wallpaper-next";
       runtimeInputs = with pkgs; [swaybg coreutils findutils procps libnotify];
       env = wallpaperEnv;
+      excludeShellChecks = ["SC2016"];
     })
     (mkScript {
       name = "kernix-wallpaper-list";
       runtimeInputs = with pkgs; [coreutils findutils gnugrep];
       env = wallpaperEnv;
+      excludeShellChecks = ["SC2016"];
     })
     (mkScript {
       name = "kernix-wallpaper-set-file";
       runtimeInputs = with pkgs; [swaybg coreutils procps];
       env = wallpaperEnv;
+      excludeShellChecks = ["SC2016"];
     })
   ]

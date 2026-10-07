@@ -64,17 +64,22 @@
         inherit pkgs;
         dataDir = "$HOME/.local/share/kernix";
       };
-      schema = import ./lib/schema.nix {lib = pkgs.lib; inherit pkgs themeLib;};
+      schema = import ./lib/schema.nix {
+        lib = pkgs.lib;
+        inherit pkgs themeLib;
+      };
       builtin = import ./apps;
-      appsFile = builtins.concatStringsSep "\n" (map schema.mkFragment (builtins.attrValues builtin));
+      appsFile = builtins.concatStringsSep "\n" (pkgs.lib.mapAttrsToList (name: def:
+        schema.mkFragment (schema.resolveApp name def {}))
+      builtin);
     in {
       fragments = pkgs.runCommand "kernix-theme-fragments" {} ''
-        set -euo pipefail
-        cat > apps.sh <<'EOF'
-        ${appsFile}
-      EOF
-        bash -n apps.sh
-        echo "fragments OK" > $out
+          set -euo pipefail
+          cat > apps.sh <<'EOF'
+          ${appsFile}
+        EOF
+          bash -n apps.sh
+          cp apps.sh $out
       '';
     });
 

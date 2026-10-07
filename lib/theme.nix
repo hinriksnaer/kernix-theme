@@ -14,6 +14,7 @@
 }: let
   scripts = ../scripts;
   themesDir = ../themes;
+  kernixPath = dataDir;
 
   # Every directory in themes/ is a theme. `palette.toml` is optional.
   themeNames =
@@ -23,13 +24,12 @@
   palettePath = name: themesDir + "/${name}/palette.toml";
 
   # Parsed palette for a theme, or {} when the theme has none.
-  palette = name:
-    let
-      path = palettePath name;
-    in
-      if builtins.pathExists path
-      then builtins.fromTOML (builtins.readFile path)
-      else {};
+  palette = name: let
+    path = palettePath name;
+  in
+    if builtins.pathExists path
+    then builtins.fromTOML (builtins.readFile path)
+    else {};
 
   # Wrap a script from scripts/ as a derivation. `env` entries are exported
   # before the script body and may reference shell variables ($HOME).

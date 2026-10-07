@@ -93,7 +93,10 @@
   # Merge a builtin definition with a user override (user wins where set).
   resolveApp = name: builtin: user: {
     inherit name;
-    enable = if user ? enable then user.enable else (builtin.enable or true);
+    enable =
+      if user ? enable
+      then user.enable
+      else (builtin.enable or true);
     priority =
       if (user.priority or null) != null
       then user.priority
@@ -116,34 +119,45 @@
   };
 
   # Native name for a theme, honouring theme-side and app-side maps.
+  # Precedence: palette [theme.map].<app> ?? app.map.<theme> ?? app.default ?? theme.
   resolveValue = app: theme: let
     pal = themeLib.palette theme;
     themeMap = pal.theme.map or {};
+    v1 = themeMap.${app.name} or null;
+    v2 = app.map.${theme} or null;
+    def = app.default or null;
   in
-    themeMap.${app.name} or (app.map.${theme} or (app.default or theme));
+    if v1 != null
+    then v1
+    else if v2 != null
+    then v2
+    else if def != null
+    then def
+    else theme;
 
   actionLine = app: action:
     if action.type == "link"
-    then ''  kernix_link "$theme_dir/${action.source}" ${lib.escapeShellArg action.target}''
+    then ''kernix_link "$theme_dir/${action.source}" ${lib.escapeShellArg action.target}''
     else if action.type == "copy"
-    then ''  kernix_copy "$theme_dir/${action.source}" ${lib.escapeShellArg action.target}''
+    then ''kernix_copy "$theme_dir/${action.source}" ${lib.escapeShellArg action.target}''
     else if action.type == "run"
-    then ''  kernix_run ${lib.escapeShellArg action.command} "$theme" "$theme_dir" "$value"''
+    then ''kernix_run ${lib.escapeShellArg action.command} "$theme" "$theme_dir" "$value"''
     else if action.type == "render"
     then let
       cases = lib.concatMapStrings (theme: let
-          value = resolveValue app theme;
-          text = action.render {
-            inherit theme value;
-            palette = themeLib.palette theme;
-            app = app.name;
-          };
-          out = pkgs.writeText "kernix-${app.name}-${theme}" text;
-        in "    ${lib.escapeShellArg theme}) kernix_put ${lib.escapeShellArg (toString out)} ${lib.escapeShellArg action.target} ;;\n")
-        themeLib.themeNames;
+        value = resolveValue app theme;
+        text = action.render {
+          inherit theme value;
+          palette = themeLib.palette theme;
+          app = app.name;
+        };
+        out = pkgs.writeText "kernix-${app.name}-${theme}" text;
+      in "    ${lib.escapeShellArg theme}) kernix_put ${lib.escapeShellArg (toString out)} ${lib.escapeShellArg action.target} ;;\n")
+      themeLib.themeNames;
     in ''
       case "$theme" in
-      ${cases}  esac''
+      ${cases}  esac
+    ''
     else "";
 
   # Shell function names must be valid identifiers.
@@ -153,8 +167,8 @@
   mkFragment = app: let
     fn = fnName app.name;
     needsValue = lib.any (a: a.type == "run") app.actions;
-    valueCase = lib.concatMapStrings (theme:
-        "    ${lib.escapeShellArg theme}) value=${lib.escapeShellArg (resolveValue app theme)} ;;\n")
+    valueCase =
+      lib.concatMapStrings (theme: "    ${lib.escapeShellArg theme}) value=${lib.escapeShellArg (resolveValue app theme)} ;;\n")
       themeLib.themeNames;
     valueDefault =
       if app.default != null
@@ -176,7 +190,8 @@
     kernix_app_names+=(${lib.escapeShellArg fn})
     ${fn}() {
       local theme="$1" theme_dir="$2"
-    ${valueBlock}${stubs}${actions}${reloads}}
+    ${valueBlock}${stubs}${actions}${reloads}
+    }
 
   '';
 
@@ -184,8 +199,8 @@
   stubTargets = app:
     lib.unique
     (lib.concatMap (a:
-        lib.optional (a ? target && a.target != null) a.target)
-      app.actions);
+      lib.optional (a ? target && a.target != null) a.target)
+    app.actions);
 in {
   inherit actionType appType resolveApp resolveValue mkFragment stubTargets;
 }

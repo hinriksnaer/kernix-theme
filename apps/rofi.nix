@@ -7,7 +7,10 @@
       target = "~/.config/rofi/theme.rasi";
     }
   ];
-  provide = {pkgs, themeLib}: [
+  provide = {
+    pkgs,
+    themeLib,
+  }: [
     (themeLib.mkScript {
       name = "kernix-rofi-theme-select";
       runtimeInputs = with pkgs; [rofi coreutils gnused libnotify];
