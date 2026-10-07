@@ -20,10 +20,10 @@
     lib = {
       theme = import ./lib/theme.nix;
       packages = import ./lib/packages.nix;
+      schema = args: import ./lib/schema.nix args;
+      apps = import ./apps;
       scripts = ./scripts;
-      hooks = ./hooks;
       themes = ./themes;
-      themeMap = ./theme-map.conf;
     };
 
     # ── Home Manager module ──
@@ -33,16 +33,49 @@
     };
 
     # ── Standalone CLI bundle (nix run / nix build) ──
-    # KERNIX_PATH defaults to ~/.local/share/kernix and can be overridden
-    # at runtime: KERNIX_PATH=/path kernix-theme-list
-    packages = forAllSystems ({pkgs}: {
+    # Includes the core tools plus every builtin app's adapter, and the
+    # wallpaper engine. KERNIX_PATH defaults to ~/.local/share/kernix.
+    packages = forAllSystems ({pkgs}: let
+      kernixPath = "$HOME/.local/share/kernix";
+      themeLib = import ./lib/theme.nix {
+        inherit pkgs;
+        dataDir = kernixPath;
+      };
+      appPkgs = pkgs.lib.concatMap (a:
+        if (a.provide or null) == null
+        then []
+        else a.provide {inherit pkgs themeLib;})
+      (builtins.attrValues (import ./apps));
+    in {
       default = pkgs.symlinkJoin {
         name = "kernix-theme";
-        paths = import ./lib/packages.nix {
-          inherit pkgs;
-          kernixPath = "$HOME/.local/share/kernix";
-        };
+        paths =
+          (import ./lib/packages.nix {
+            inherit pkgs kernixPath;
+            wallpaper.enable = true;
+          })
+          ++ appPkgs;
       };
+    });
+
+    # ── Checks (bash syntax of generated fragments) ──
+    checks = forAllSystems ({pkgs}: let
+      themeLib = import ./lib/theme.nix {
+        inherit pkgs;
+        dataDir = "$HOME/.local/share/kernix";
+      };
+      schema = import ./lib/schema.nix {lib = pkgs.lib; inherit pkgs themeLib;};
+      builtin = import ./apps;
+      appsFile = builtins.concatStringsSep "\n" (map schema.mkFragment (builtins.attrValues builtin));
+    in {
+      fragments = pkgs.runCommand "kernix-theme-fragments" {} ''
+        set -euo pipefail
+        cat > apps.sh <<'EOF'
+        ${appsFile}
+      EOF
+        bash -n apps.sh
+        echo "fragments OK" > $out
+      '';
     });
 
     formatter = forAllSystems ({pkgs}: pkgs.alejandra);

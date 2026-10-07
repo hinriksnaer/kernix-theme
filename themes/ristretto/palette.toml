@@ -1,0 +1,31 @@
+name = "Ristretto"
+variant = "dark"
+
+[colors]
+bg = "#2c2525"
+fg = "#e6d9db"
+cursor = "#c3b7b8"
+selection = "#403e41"
+black = "#72696a"
+red = "#fd6883"
+green = "#adda78"
+yellow = "#f9cc6c"
+blue = "#f38d70"
+magenta = "#a8a9eb"
+cyan = "#85dacc"
+white = "#e6d9db"
+brightBlack = "#948a8b"
+brightRed = "#ff8297"
+brightGreen = "#c8e292"
+brightYellow = "#fcd675"
+brightBlue = "#f8a788"
+brightMagenta = "#bebffd"
+brightCyan = "#9bf1e1"
+brightWhite = "#f1e5e7"
+
+[theme.map]
+yazi = "catppuccin-mocha"
+herdr = "terminal"
+
+[wallpaper]
+default = "backgrounds/1-ristretto.jpg"

@@ -1,0 +1,31 @@
+name = "Ayu Mirage"
+variant = "dark"
+
+[colors]
+bg = "#1f2430"
+fg = "#cccac2"
+cursor = "#73d0ff"
+selection = "#274364"
+black = "#191e2a"
+red = "#ed8274"
+green = "#a6cc70"
+yellow = "#fad07b"
+blue = "#6dcbfa"
+magenta = "#cfbafa"
+cyan = "#90e1c6"
+white = "#c7c7c7"
+brightBlack = "#686868"
+brightRed = "#f28779"
+brightGreen = "#bae67e"
+brightYellow = "#ffd580"
+brightBlue = "#73d0ff"
+brightMagenta = "#d4bfff"
+brightCyan = "#95e6cb"
+brightWhite = "#ffffff"
+
+[theme.map]
+yazi = "ayu-dark"
+herdr = "terminal"
+
+[wallpaper]
+default = "backgrounds/1-Nocturne-of-Steel-and-Glass.png"

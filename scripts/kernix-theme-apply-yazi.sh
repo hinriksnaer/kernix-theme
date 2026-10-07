@@ -1,42 +1,28 @@
 # Apply theme to yazi by mapping kernix theme name to a yazi flavor.
-# Called by kernix-theme-apply as a script hook.
-# Usage: kernix-theme-apply-yazi <theme-name> <theme-path>
+# Called by kernix-theme-apply as a run action.
+# Usage: kernix-theme-apply-yazi <theme-name> <theme-path> <value>
+# `value` is the app-native yazi flavor resolved by the engine
+# (palette [theme.map].yazi, app map, or default).
 
-if [[ $# -lt 1 ]]; then
-    exit 1
+if [[ $# -lt 3 ]]; then
+  exit 1
 fi
 
-if ! command -v yazi &>/dev/null; then
-    exit 1
+if ! command -v yazi >/dev/null 2>&1; then
+  exit 1
 fi
 
-theme_name="$1"
-theme_map="$HOME/.config/yazi/theme-map.conf"
-yazi_flavor=""
-
-# Look up flavor mapping
-if [[ -f "$theme_map" ]]; then
-    while IFS='=' read -r key value; do
-        # Skip comments and blank lines
-        [[ "$key" == \#* ]] && continue
-        [[ -z "$key" ]] && continue
-        if [[ "$key" == "$theme_name" ]]; then
-            yazi_flavor="$value"
-            break
-        fi
-    done < "$theme_map"
-fi
-
-# Fallback if no mapping found
-if [[ -z "$yazi_flavor" ]]; then
-    yazi_flavor="catppuccin-mocha"
+value="$3"
+if [[ -z "$value" ]]; then
+  value="catppuccin-mocha"
 fi
 
 theme_file="$HOME/.config/yazi/theme.toml"
+mkdir -p "$(dirname "$theme_file")"
 printf '%s\n' \
-    '# Yazi Theme for Kernix' \
-    '# Managed by kernix-theme-apply - Do not edit manually' \
-    '' \
-    '[flavor]' \
-    "use = \"$yazi_flavor\"" \
-    > "$theme_file" 2>/dev/null
+  '# Yazi Theme for Kernix' \
+  '# Managed by kernix-theme-apply - Do not edit manually' \
+  '' \
+  '[flavor]' \
+  "use = \"$value\"" \
+  > "$theme_file" 2>/dev/null

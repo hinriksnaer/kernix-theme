@@ -1,0 +1,31 @@
+name = "Ayu Dark"
+variant = "dark"
+
+[colors]
+bg = "#0d1017"
+fg = "#bfbdb6"
+cursor = "#ff8f40"
+selection = "#1a3350"
+black = "#1b1f29"
+red = "#f06b73"
+green = "#39bae6"
+yellow = "#ffb454"
+blue = "#39bae6"
+magenta = "#ff8f40"
+cyan = "#39bae6"
+white = "#c7c7c7"
+brightBlack = "#686868"
+brightRed = "#f07178"
+brightGreen = "#59c2ff"
+brightYellow = "#e6b450"
+brightBlue = "#59c2ff"
+brightMagenta = "#e6b450"
+brightCyan = "#59c2ff"
+brightWhite = "#ffffff"
+
+[theme.map]
+yazi = "ayu-dark"
+herdr = "terminal"
+
+[wallpaper]
+default = "backgrounds/0-torrentz-hydra.jpg"

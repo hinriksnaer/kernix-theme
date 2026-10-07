@@ -1,0 +1,31 @@
+name = "Torrentz Hydra"
+variant = "dark"
+
+[colors]
+bg = "#0F1016"
+fg = "#E2E6F1"
+cursor = "#1BC5C9"
+selection = "#272A34"
+black = "#0C0D11"
+red = "#FF6A1F"
+green = "#9AE64F"
+yellow = "#FF9A3D"
+blue = "#1BC5C9"
+magenta = "#B537FF"
+cyan = "#5FE6E9"
+white = "#A5ABB8"
+brightBlack = "#272A34"
+brightRed = "#FF8140"
+brightGreen = "#B8FF74"
+brightYellow = "#FFC268"
+brightBlue = "#39D8DF"
+brightMagenta = "#C865FF"
+brightCyan = "#8AF2F4"
+brightWhite = "#E2E6F1"
+
+[theme.map]
+yazi = "catppuccin-mocha"
+herdr = "terminal"
+
+[wallpaper]
+default = "backgrounds/1-torrentz-hydra.jpg"

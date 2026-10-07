@@ -1,0 +1,31 @@
+name = "Rose Pine Dark"
+variant = "dark"
+
+[colors]
+bg = "#191724"
+fg = "#e0def4"
+cursor = "#524f67"
+selection = "#403d52"
+black = "#26233a"
+red = "#eb6f92"
+green = "#31748f"
+yellow = "#f6c177"
+blue = "#9ccfd8"
+magenta = "#c4a7e7"
+cyan = "#ebbcba"
+white = "#e0def4"
+brightBlack = "#6e6a86"
+brightRed = "#eb6f92"
+brightGreen = "#31748f"
+brightYellow = "#f6c177"
+brightBlue = "#9ccfd8"
+brightMagenta = "#c4a7e7"
+brightCyan = "#ebbcba"
+brightWhite = "#e0def4"
+
+[theme.map]
+yazi = "rose-pine-moon"
+herdr = "rose-pine"
+
+[wallpaper]
+default = "backgrounds/1-background.png"

@@ -4,9 +4,14 @@
 #
 #   kernix.theme.hooks = [ "btop" "neovim" ];
 #
-# Hook definitions live in hooks/<name>.nix (pure data, one file per app).
-# The engine generates hook registrations (~/.config/kernix/theme-hooks.d/*)
-# and file stubs from the enabled set.
+# or by declaring a full app (used by third-party flakes):
+#
+#   kernix.theme.apps.myapp = {
+#     actions = [ { type = "render"; target = "..."; render = { palette, ... }: "..."; } ];
+#   };
+#
+# Enabled apps are compiled into ~/.config/kernix/apps.sh, which
+# kernix-theme-apply sources and runs.
 {
   pkgs,
   config,
@@ -16,99 +21,103 @@
 }: let
   themeLib = import ../lib/theme.nix {inherit pkgs config;};
   inherit (themeLib) kernixPath;
+  schema = import ../lib/schema.nix {inherit lib pkgs themeLib;};
+  builtin = import ../apps;
 
   cfg = config.kernix.theme;
 
-  # ── Hook registry ──
-  # Load a hook definition by name from hooks/<name>.nix.
-  loadHook = name: import ../hooks/${name}.nix;
+  appNames = lib.unique (cfg.hooks ++ builtins.attrNames cfg.apps);
+  resolve = name: schema.resolveApp name (builtin.${name} or {}) (cfg.apps.${name} or {});
+  allApps = map resolve appNames;
+  enabledApps = builtins.filter (a: a.enable) allApps;
+  sortedApps = lib.sort (a: b: a.priority < b.priority) enabledApps;
 
-  # Build the hook text for a single hook definition.
-  hookText = def: let
-    lines =
-      lib.optional (def ? type) "type=${def.type}"
-      ++ lib.optional (def ? script) "script=${def.script}"
-      ++ lib.optional (def ? source) "source=${def.source}"
-      ++ lib.optional (def ? target) "target=${def.target}"
-      ++ lib.optional (def ? key) "key=${def.key}"
-      ++ lib.optional (def ? reload) "reload=${def.reload}";
-  in
-    builtins.concatStringsSep "\n" lines;
+  appsFile = builtins.concatStringsSep "\n" (map schema.mkFragment sortedApps);
 
-  # Build the stub activation script for a hook that has a target.
-  # Hook targets use ~ which must be expanded to $HOME at runtime.
-  stubScript = def: let
-    mkdirs = builtins.concatStringsSep "\n" (map (d: ''mkdir -p "${d}"'') (def.stubDirs or []));
-  in ''
-    ${mkdirs}
-    _stub_target="${def.target}"
-    _stub_target="''${_stub_target/#\~/$HOME}"
-    mkdir -p "$(dirname "$_stub_target")"
-    [ -e "$_stub_target" ] || touch "$_stub_target"
-  '';
+  corePkgs = import ../lib/packages.nix {
+    inherit pkgs kernixPath;
+    inherit (cfg) wallpaper;
+  };
+  appPkgs = lib.concatMap (a:
+    if a.provide == null
+    then []
+    else a.provide {inherit pkgs themeLib;})
+  enabledApps;
 
-  # All enabled hook definitions (loaded from hooks/).
-  enabledHooks = map (name: {inherit name;} // loadHook name) cfg.hooks;
-
-  # Hook registrations (xdg.configFile entries).
-  hookFiles = builtins.listToAttrs (map (h: {
-      name = "kernix/theme-hooks.d/${h.priority}-${h.name}";
-      value.text = hookText h;
-    })
-    enabledHooks);
-
-  # Stub activations (home.activation entries for hooks with targets).
-  stubActivations = builtins.listToAttrs (lib.concatMap (h:
-    lib.optional (h ? target) {
-      name = "${h.name}ThemeStub";
-      value = config.lib.dag.entryAfter ["linkGeneration"] (stubScript h);
-    })
-  enabledHooks);
+  stubTargets = lib.unique (lib.concatMap schema.stubTargets enabledApps);
+  stubDirs = lib.unique (lib.concatMap (a: a.stubDirs) enabledApps);
+  stubScript = lib.concatStringsSep "\n" (
+    map (d: ''mkdir -p "${d}"'') stubDirs
+    ++ map (t: ''
+      _kernix_stub=${lib.escapeShellArg t}
+      _kernix_stub="''${_kernix_stub/#\~/$HOME}"
+      mkdir -p "$(dirname "$_kernix_stub")"
+      [ -e "$_kernix_stub" ] || : > "$_kernix_stub"
+    '')
+    stubTargets
+  );
 in {
-  # ── Option declaration ──
+  # ── Options ──
   options.kernix.theme = {
-    hooks = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [];
-      description = "List of theme hook names to enable (must match a file in kernix-theme/hooks/).";
-    };
-
-    defaultTheme = lib.mkOption {
+    selected = lib.mkOption {
       type = lib.types.str;
       default = "ayu";
       description = "Theme seeded into ~/.config/kernix/current-theme on first activation.";
     };
-  };
 
-  config = {
-    # ── Hook registrations + stubs ──
-    xdg.configFile =
-      hookFiles
-      // lib.optionalAttrs (lib.elem "yazi" cfg.hooks) {
-        # Yazi flavor mapping travels with the engine when its hook is enabled.
-        "yazi/theme-map.conf".source = ../theme-map.conf;
-      };
-    home.activation =
-      stubActivations
-      // {
-        # ── Default theme seeding ──
-        kernixConfig = config.lib.dag.entryAfter ["linkGeneration"] ''
-          mkdir -p "$HOME/.config/kernix"
-          if [ ! -f "$HOME/.config/kernix/current-theme" ]; then
-            echo "${host.defaultTheme or cfg.defaultTheme}" > "$HOME/.config/kernix/current-theme"
-          fi
-        '';
-      };
-
-    # ── Engine + adapters + pickers ──
-    home.packages = import ../lib/packages.nix {
-      inherit pkgs kernixPath;
-      hooks = cfg.hooks;
+    hooks = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      description = "Builtin app names to enable (see kernix-theme/apps/).";
     };
 
-    home.sessionVariables.KERNIX_PATH = kernixPath;
+    apps = lib.mkOption {
+      type = lib.types.attrsOf schema.appType;
+      default = {};
+      description = "App definitions; extends or overrides the builtin registry.";
+    };
 
-    # ── Theme data deployment ──
+    wallpaper = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Install and enable wallpaper management.";
+      };
+      backend = lib.mkOption {
+        type = lib.types.enum ["swaybg" "hyprpaper"];
+        default = "swaybg";
+        description = "Wallpaper backend.";
+      };
+      target = lib.mkOption {
+        type = lib.types.str;
+        default = "$HOME/.config/hypr/wallpapers/current";
+        description = "Path the current wallpaper is linked to.";
+      };
+    };
+  };
+
+  # ── Wiring ──
+  config = {
+    xdg.configFile."kernix/apps.sh".text = appsFile;
     xdg.dataFile."kernix/themes".source = ../themes;
+
+    home.packages = corePkgs ++ appPkgs;
+
+    home.sessionVariables = {
+      KERNIX_PATH = kernixPath;
+      KERNIX_WALLPAPER_BACKEND = cfg.wallpaper.backend;
+      KERNIX_WALLPAPER_TARGET = cfg.wallpaper.target;
+    };
+
+    home.activation = {
+      kernixConfig = config.lib.dag.entryAfter ["linkGeneration"] ''
+        mkdir -p "$HOME/.config/kernix"
+        if [ ! -f "$HOME/.config/kernix/current-theme" ]; then
+          printf '%s\n' "${host.defaultTheme or cfg.selected}" > "$HOME/.config/kernix/current-theme"
+        fi
+      '';
+
+      kernixStubs = config.lib.dag.entryAfter ["linkGeneration"] stubScript;
+    };
   };
 }

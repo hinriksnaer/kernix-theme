@@ -1,0 +1,31 @@
+name = "Matte Black"
+variant = "dark"
+
+[colors]
+bg = "#121212"
+fg = "#bebebe"
+cursor = "#eaeaea"
+selection = "#333333"
+black = "#333333"
+red = "#D35F5F"
+green = "#FFC107"
+yellow = "#b91c1c"
+blue = "#e68e0d"
+magenta = "#D35F5F"
+cyan = "#bebebe"
+white = "#bebebe"
+brightBlack = "#8a8a8d"
+brightRed = "#B91C1C"
+brightGreen = "#FFC107"
+brightYellow = "#b90a0a"
+brightBlue = "#f59e0b"
+brightMagenta = "#B91C1C"
+brightCyan = "#eaeaea"
+brightWhite = "#ffffff"
+
+[theme.map]
+yazi = "nord"
+herdr = "terminal"
+
+[wallpaper]
+default = "backgrounds/0-ship-at-sea.jpg"

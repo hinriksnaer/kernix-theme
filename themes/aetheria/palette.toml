@@ -1,0 +1,31 @@
+name = "Aetheria"
+variant = "dark"
+
+[colors]
+bg = "#0e091d"
+fg = "#14B9B5"
+cursor = "#ff7f41"
+selection = "#14B9B5"
+black = "#000000"
+red = "#c8e967"
+green = "#E20342"
+yellow = "#7cd699"
+blue = "#BE3F50"
+magenta = "#9147a8"
+cyan = "#FF7F41"
+white = "#A60234"
+brightBlack = "#c53253"
+brightRed = "#CE4F48"
+brightGreen = "#f93d3b"
+brightYellow = "#FD3E6A"
+brightBlue = "#04C5F0"
+brightMagenta = "#6C032C"
+brightCyan = "#ffbe74"
+brightWhite = "#11AEB3"
+
+[theme.map]
+yazi = "catppuccin-mocha"
+herdr = "terminal"
+
+[wallpaper]
+default = "backgrounds/aetheria-1-4k@.jpeg"

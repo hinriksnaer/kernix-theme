@@ -1,33 +1,22 @@
 # Apply theme to herdr by updating config.toml's theme.name value.
-# Called by kernix-theme-apply as a script hook.
-# Usage: kernix-theme-apply-herdr <theme-name> <theme-path>
-#
-# Maps kernix theme names to herdr built-in themes. Themes without a
-# direct herdr equivalent use "terminal" to inherit ANSI palette colors
-# from the host terminal (which the kernix terminal hook already controls).
+# Called by kernix-theme-apply as a run action.
+# Usage: kernix-theme-apply-herdr <theme-name> <theme-path> <value>
+# `value` is the app-native herdr theme name resolved by the engine
+# (palette [theme.map].herdr, app map, or "terminal").
+# "terminal" inherits the ANSI palette from the host terminal.
 
-if [[ $# -lt 1 ]]; then
-    exit 1
+if [[ $# -lt 3 ]]; then
+  exit 1
 fi
 
-theme_name="$1"
+value="${3:-terminal}"
 config_file="$HOME/.config/herdr/config.toml"
 
 if [[ ! -f "$config_file" ]]; then
-    exit 1
+  exit 1
 fi
 
-# Map kernix theme -> herdr built-in theme
-case "$theme_name" in
-    catppuccin)       herdr_theme="catppuccin" ;;
-    nord)             herdr_theme="nord" ;;
-    rose-pine-dark)   herdr_theme="rose-pine" ;;
-    tokyo-night)      herdr_theme="tokyo-night" ;;
-    *)                herdr_theme="terminal" ;;
-esac
-
-# Update theme.name in config.toml
-# Matches: name = "..." under the [theme] section
-sed -i "s/^name = \"[^\"]*\"/name = \"$herdr_theme\"/" "$config_file"
+# Update theme.name in config.toml (matches: name = "..." under the [theme] section)
+sed -i "s/^name = \"[^\"]*\"/name = \"$value\"/" "$config_file"
 
 exit 0
