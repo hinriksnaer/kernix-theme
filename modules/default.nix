@@ -77,6 +77,17 @@ in {
       description = "App definitions; extends or overrides the builtin registry.";
     };
 
+    dataDir = lib.mkOption {
+      type = lib.types.str;
+      readOnly = true;
+      default = kernixPath;
+      description = ''
+        Runtime location of the deployed theme pack (KERNIX_PATH).
+        Consumers that need to resolve theme files at eval time should
+        read this instead of recomputing the path.
+      '';
+    };
+
     packages = {
       engine = lib.mkOption {
         type = lib.types.listOf lib.types.package;

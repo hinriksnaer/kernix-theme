@@ -91,7 +91,9 @@ Two interfaces, deliberately separate:
 
 To build orchestration, depend on the engine explicitly via
 `config.kernix.theme.packages.engine` instead of relying on the ambient
-`$PATH`:
+`$PATH`. To resolve theme files at eval time, read
+`config.kernix.theme.dataDir` (the runtime location of the theme pack,
+i.e. `KERNIX_PATH`) instead of recomputing the path:
 
 ```nix
 { config, pkgs, ... }: {
