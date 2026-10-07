@@ -77,6 +77,20 @@ in {
       description = "App definitions; extends or overrides the builtin registry.";
     };
 
+    packages = {
+      engine = lib.mkOption {
+        type = lib.types.listOf lib.types.package;
+        readOnly = true;
+        default = corePkgs;
+        description = ''
+          The core CLI tools (kernix-theme-*, kernix-wallpaper-*) as an
+          explicit dependency. Orchestration layers (launcher pickers,
+          widgets, scripts) should consume this rather than relying on the
+          ambient PATH.
+        '';
+      };
+    };
+
     wallpaper = {
       enable = lib.mkOption {
         type = lib.types.bool;

@@ -33,7 +33,7 @@ themes/<name>/
         kernix-theme.homeManagerModules.theme
         ({host, ...}: {
           kernix.theme.selected = host.defaultTheme; # seed only
-          kernix.theme.hooks = ["btop" "neovim" "rofi"];
+          kernix.theme.hooks = ["btop" "neovim" "rofi"]; # rofi = link rofi.rasi
           kernix.theme.wallpaper = {
             enable = true;
             backend = "swaybg";
@@ -75,10 +75,43 @@ The engine treats `render` as an early-return for that app: the Nix case
 supplies per-theme store files (with the app's value resolved at eval) and
 links the match to the target.
 
+## Enablement vs orchestration
+
+Two interfaces, deliberately separate:
+
+- **Enablement** — `kernix.theme.hooks` / `kernix.theme.apps.<name>` plus the
+  action primitives. The engine applies theme files (`link`/`copy`/`render`)
+  when a theme changes. A builtin app's `provide` belongs here too: it ships
+  *apply-time* adapters (the `run` action) that fire during
+  `kernix-theme-apply`.
+- **Orchestration** — UI/scripts that let the user *drive* the engine
+  (launcher pickers, widgets, keybinds) by calling the installed
+  `kernix-theme-*` / `kernix-wallpaper-*` CLI. This is the consumer's job and
+  is **not** part of the theme pack.
+
+To build orchestration, depend on the engine explicitly via
+`config.kernix.theme.packages.engine` instead of relying on the ambient
+`$PATH`:
+
+```nix
+{ config, pkgs, ... }: {
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "my-theme-picker";
+      runtimeInputs = [pkgs.fzf] ++ config.kernix.theme.packages.engine;
+      text = "kernix-theme-list | fzf | xargs -r kernix-theme-set";
+    })
+  ];
+}
+```
+
 ## App actions
 
 An app is a priority, a list of actions, optional reloads and (for builtins)
-a package `provide` function:
+a package `provide` function. `provide` returns extra packages for the app —
+**builtins** use `themeLib.mkScript` (which reads
+`kernix-theme/scripts/<name>.sh`); **consumers** ship their own scripts with
+`pkgs.writeShellApplication`:
 
 ```nix
 kernix.theme.apps.alacritty = {
@@ -91,10 +124,11 @@ kernix.theme.apps.alacritty = {
     }
   ];
   reload = ["alacritty msg config --path ~/.config/alacritty/theme.yml"];
-  provide = {pkgs, themeLib, ...}: [
-    (themeLib.mkScript {
+  provide = {pkgs, ...}: [
+    (pkgs.writeShellApplication {
       name = "kernix-theme-apply-alacritty";
-      runtimeInputs = with pkgs; [coreutils];
+      runtimeInputs = with pkgs; [coreutils alacritty];
+      text = ''alacritty msg config --path "$HOME/.config/alacritty/theme.yml"'';
     })
   ];
 };
