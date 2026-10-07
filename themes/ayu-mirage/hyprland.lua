@@ -1,0 +1,7 @@
+-- Ayu Mirage theme
+hl.config({
+    general = {
+        col = { active_border = "rgb(f28779)" },
+    },
+    decoration = { rounding = 4 },
+})

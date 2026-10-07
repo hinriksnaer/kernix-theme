@@ -1,0 +1,15 @@
+/* Aetheria theme colors for Waybar */
+@define-color foreground #14B9B5;
+@define-color background #0e091d;
+@define-color accent #e20342;
+
+/* Accent color — all icons, workspace underline, kernix icon */
+#custom-kernix { color: @accent; }
+#custom-cpu-icon { color: @accent; }
+#custom-temp-icon { color: @accent; }
+#custom-mem-icon { color: @accent; }
+#custom-gpu-icon { color: @accent; }
+#custom-gpu-temp-icon { color: @accent; }
+#workspaces button.active { color: @accent; border-bottom-color: @accent; }
+
+#custom-battery-icon { color: @accent; }

@@ -1,0 +1,15 @@
+/* Nord theme colors for Waybar */
+@define-color foreground #d8dee9;
+@define-color background #2e3440;
+@define-color accent #D8DEE9;
+
+/* Accent color — all icons, workspace underline, kernix icon */
+#custom-kernix { color: @accent; }
+#custom-cpu-icon { color: @accent; }
+#custom-temp-icon { color: @accent; }
+#custom-mem-icon { color: @accent; }
+#custom-gpu-icon { color: @accent; }
+#custom-gpu-temp-icon { color: @accent; }
+#workspaces button.active { color: @accent; border-bottom-color: @accent; }
+
+#custom-battery-icon { color: @accent; }

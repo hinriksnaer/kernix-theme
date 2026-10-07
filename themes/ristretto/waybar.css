@@ -1,0 +1,15 @@
+/* Ristretto theme colors for Waybar */
+@define-color foreground #e6d9db;
+@define-color background #2c2525;
+@define-color accent #e6d9db;
+
+/* Accent color — all icons, workspace underline, kernix icon */
+#custom-kernix { color: @accent; }
+#custom-cpu-icon { color: @accent; }
+#custom-temp-icon { color: @accent; }
+#custom-mem-icon { color: @accent; }
+#custom-gpu-icon { color: @accent; }
+#custom-gpu-temp-icon { color: @accent; }
+#workspaces button.active { color: @accent; border-bottom-color: @accent; }
+
+#custom-battery-icon { color: @accent; }

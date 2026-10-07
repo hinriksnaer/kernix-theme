@@ -1,0 +1,15 @@
+/* Osaka Jade theme colors for Waybar */
+@define-color foreground #e6d8ba;
+@define-color background #11221C;
+@define-color accent #71CEAD;
+
+/* Accent color — all icons, workspace underline, kernix icon */
+#custom-kernix { color: @accent; }
+#custom-cpu-icon { color: @accent; }
+#custom-temp-icon { color: @accent; }
+#custom-mem-icon { color: @accent; }
+#custom-gpu-icon { color: @accent; }
+#custom-gpu-temp-icon { color: @accent; }
+#workspaces button.active { color: @accent; border-bottom-color: @accent; }
+
+#custom-battery-icon { color: @accent; }

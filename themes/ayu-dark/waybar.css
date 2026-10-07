@@ -1,0 +1,15 @@
+/* Ayu Dark theme colors for Waybar */
+@define-color foreground #bfbdb6;
+@define-color background #10141c;
+@define-color accent #59c2ff;
+
+/* Accent color — all icons, workspace underline, kernix icon */
+#custom-kernix { color: @accent; }
+#custom-cpu-icon { color: @accent; }
+#custom-temp-icon { color: @accent; }
+#custom-mem-icon { color: @accent; }
+#custom-gpu-icon { color: @accent; }
+#custom-gpu-temp-icon { color: @accent; }
+#workspaces button.active { color: @accent; border-bottom-color: @accent; }
+
+#custom-battery-icon { color: @accent; }
